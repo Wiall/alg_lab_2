@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using alg_lab_1;
 
 namespace alg_lab_2
 {
@@ -31,41 +32,44 @@ namespace alg_lab_2
                 {21, new List<int> {13, 22}},                       // Прованс — Альпи — Лазурний Берег
                 {22, new List<int> {3, 5, 10, 13, 21}},             // Рона-Альпи
             };
-            
+            MemoryController.LimitMemoryUsage(1000);
             int numOfColors = 4;
-            Console.WriteLine("Choose the region code (from 1 to 22)");
-            int regionNum = int.Parse(Console.ReadLine());
-            
-            Console.WriteLine("1 - AnnealMapColoring(ANNEAL), 2 - BacktrackingMapColoring(MRV)");
-            switch (Console.ReadLine())
+            do
             {
-                case "1":
-                    var solver2 = new AnnealMapColoring(map, numOfColors, regionNum);
-                    var solution = solver2.Solve();
-
-                    Console.WriteLine("Final solution:");
-                    solver2.PrintSolution();
-                    return;
+                Console.Clear();
+                Console.WriteLine("Choose the region code (from 1 to 22)");
+                int regionNum = int.Parse(Console.ReadLine());
                 
-                case "2":
-                    var solver = new BacktrackingMapColoring(map, numOfColors);
-                    bool success = solver.Backtracking(regionNum);
+                Console.WriteLine("1 - AnnealMapColoring(ANNEAL), 2 - BacktrackingMapColoring(MRV)");
+                switch (Console.ReadLine())
+                {
+                    case "1":
+                        var solver2 = new AnnealMapColoring(map, numOfColors, regionNum);
+                        var solution = solver2.Solve();
 
-                    if (success)
-                    {
-                        Console.WriteLine("Solution found:");
-                        solver.PrintSolution();
-                    }
-                    else
-                    {
-                        Console.WriteLine("No solution found.");
-                    }
-                    return;
-                
-                default:
-                    Console.WriteLine("Error");
-                    return;
-            }
+                        Console.WriteLine("Final solution:");
+                        solver2.PrintSolution();
+                        break;
+                    
+                    case "2":
+                        var solver = new BacktrackingMapColoring(map, numOfColors);
+                        bool success = solver.Backtracking(regionNum);
+
+                        if (success)
+                        {
+                            Console.WriteLine("Solution found:");
+                            solver.PrintSolution();
+                        }
+                        else {
+                            Console.WriteLine("No solution found.");
+                        }
+                        break;
+                    
+                    default:
+                        Console.WriteLine("Error. Choose the correct method");
+                        break;
+                }
+            } while (Console.ReadKey().Key != ConsoleKey.Escape);
         }
     }
 }

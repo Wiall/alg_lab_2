@@ -6,67 +6,61 @@ namespace alg_lab_2
 {
     public class BacktrackingMapColoring
     {
-        private Dictionary<int, List<int>> map; // Карта з регіонами та сусідніми зв'язками
-        private Dictionary<int, int> colors; // Кольори для кожного регіону
+        private Dictionary<int, List<int>> map;
+        private Dictionary<int, int> colors;
         private int numOfColors;
         private List<int> uncoloredRegions;
 
-        // Додані лічильники
-        private int steps = 0; // Кількість ітерацій (етапів)
-        private int deadEnds = 0; // Кількість глухих кутів
-        private int generatedStates = 0; // Кількість згенерованих станів
-        private int storedStates = 0; // Кількість станів у пам'яті
+        private int steps = 0;
+        private int deadEnds = 0;
+        private int generatedStates = 0;
+        private int storedStates = 0;
 
         public BacktrackingMapColoring(Dictionary<int, List<int>> map, int numOfColors)
         {
             this.map = map;
             this.numOfColors = numOfColors;
             this.colors = new Dictionary<int, int>();
-            this.uncoloredRegions = map.Keys.ToList(); // Всі регіони початково не пофарбовані
+            this.uncoloredRegions = map.Keys.ToList();
         }
 
         public bool Backtracking(int startRegion)
         {
-            // Починаємо з обраного користувачем міста
             if (uncoloredRegions.Contains(startRegion))
             {
                 uncoloredRegions.Remove(startRegion);
                 if (Solve(startRegion)) return true;
             }
-
             return Solve();
         }
 
         private bool Solve(int? region = null)
         {
-            steps++; // Кожен рекурсивний виклик – це новий крок
-            if (region == null) region = SelectRegionWithMRV(); // Якщо регіон не обраний, вибираємо за MRV
-            if (region == -1) return true; // Всі регіони пофарбовані
+            steps++;
+            if (region == null) region = SelectRegionWithMRV();
+            if (region == -1) return true;
 
             for (int color = 1; color <= numOfColors; color++)
             {
                 if (IsValid(region.Value, color))
                 {
-                    colors[region.Value] = color; // Присвоєння кольору регіону
-                    uncoloredRegions.Remove(region.Value); // Видалення регіону зі списку нефарбованих
-                    generatedStates++; // Новий стан згенеровано
+                    colors[region.Value] = color;
+                    uncoloredRegions.Remove(region.Value);
+                    generatedStates++;
 
-                    // Оновлення кількості станів, що зберігаються (у даний момент часу)
                     storedStates = Math.Max(storedStates, colors.Count);
 
                     if (Solve()) return true;
 
-                    // Відміна вибору (backtracking)
                     colors.Remove(region.Value);
-                    uncoloredRegions.Add(region.Value); // Повернення регіону до нефарбованих
-                    deadEnds++; // Це глухий кут
+                    uncoloredRegions.Add(region.Value);
+                    deadEnds++;
                 }
             }
 
-            return false; // Не знайдено рішення
+            return false;
         }
 
-        // Вибір регіону з найменшою кількістю доступних кольорів (MRV)
         private int SelectRegionWithMRV()
         {
             int selectedRegion = -1;
@@ -82,24 +76,22 @@ namespace alg_lab_2
                 }
             }
 
-            return selectedRegion; // Повертаємо -1, якщо немає регіонів для вибору
+            return selectedRegion;
         }
 
-        // Перевірка, чи можна присвоїти колір регіону, враховуючи кольори сусідів
         private bool IsValid(int region, int color)
         {
             foreach (int neighbor in map[region])
             {
                 if (colors.ContainsKey(neighbor) && colors[neighbor] == color)
                 {
-                    return false; // Конфлікт, сусід має той самий колір
+                    return false;
                 }
             }
 
-            return true; // Конфліктів немає
+            return true;
         }
 
-        // Отримання списку доступних кольорів для даного регіону
         private List<int> GetAvailableColors(int region)
         {
             HashSet<int> neighborColors = new HashSet<int>();
@@ -112,7 +104,6 @@ namespace alg_lab_2
                 }
             }
 
-            // Повертаємо кольори, які ще не використовуються сусідами
             List<int> availableColors = new List<int>();
             for (int color = 1; color <= numOfColors; color++)
             {
@@ -125,7 +116,6 @@ namespace alg_lab_2
             return availableColors;
         }
 
-        // Виведення кількості кроків, глухих кутів, станів та результату
         public void PrintSolution()
         {
             if (colors.Count == 0)
@@ -139,8 +129,8 @@ namespace alg_lab_2
                     Console.WriteLine($"Region {regionColor.Key} has color {regionColor.Value}");
                 }
             }
+            MapColoringResultSaver.SaveResult(colors, "map_coloring_solution.json");
 
-            // Виведення статистики
             Console.WriteLine($"\nSteps (Iterations): {steps}");
             Console.WriteLine($"Dead Ends: {deadEnds}");
             Console.WriteLine($"Generated States: {generatedStates}");
